@@ -27,6 +27,8 @@ import { ContactComponent } from './contact/contact.component';
 import { AppRoutingModule } from './app-routing/app-routing.module';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
+import { RestangularModule, Restangular } from 'ngx-restangular';
+import { RestangularConfigFactory } from './shared/restConfig';
 
 import { DishService } from './services/dish.service';
 import { PromotionService } from './services/promotion.service';
@@ -68,7 +70,8 @@ import { baseURL } from './shared/baseurl';
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     MatSliderModule,
-    HttpClientModule
+    HttpClientModule,
+    RestangularModule.forRoot(RestangularConfigFactory)
 
   ],
   entryComponents: [LoginComponent],
