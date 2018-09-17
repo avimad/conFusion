@@ -50,8 +50,12 @@
           </p>
         </mat-list-item>
     </mat-list>
-    <div [hidden]="dish">
+    <div [hidden]="dish || errMess">
       <mat-spinner></mat-spinner>Loading . . . Please Wait
+    </div>
+    <div *ngIf="errMess">
+      <h2>Error</h2>
+      <h4>{{errMess}}</h4>
     </div>
     <div fxFlex class="form-size">
         <form novalidate [formGroup]="commentForm" #cform="ngForm" (ngSubmit)="onSubmit()">

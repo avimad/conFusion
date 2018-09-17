@@ -24,6 +24,7 @@ export class DishdetailComponent implements OnInit {
   @ViewChild('cform') commentFormDirective;
   commentForm: FormGroup;
   comment: Comment;
+  errMess: string;
   formErrors = {
     'author': '',
     'comment': ''
@@ -31,11 +32,11 @@ export class DishdetailComponent implements OnInit {
 
   validationMessages = {
     'author': {
-      'required':      'Author Name is required.',
-      'minlength':     'Author Name must be at least 2 characters long.',
+      'required': 'Author Name is required.',
+      'minlength': 'Author Name must be at least 2 characters long.',
     },
     'comment': {
-      'required':      'comment is required.'
+      'required': 'comment is required.'
     }
   };
 
@@ -43,14 +44,15 @@ export class DishdetailComponent implements OnInit {
     private route: ActivatedRoute,
     private location: Location,
     private fb: FormBuilder, @Inject('BaseURL') private BaseURL) {
-      this.createForm();
-     }
+    this.createForm();
+  }
 
 
   ngOnInit() {
     this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds);
     this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(+params['id'])))
-      .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });
+      .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); },
+        errmess => this.errMess = <any>this.errMess);
   }
   setPrevNext(dishId: number) {
     const index = this.dishIds.indexOf(dishId);
@@ -68,9 +70,9 @@ export class DishdetailComponent implements OnInit {
       comment: ['', [Validators.required]],
     });
     this.commentForm.valueChanges
-    .subscribe(data => this.onValueChanged(data));
+      .subscribe(data => this.onValueChanged(data));
 
-  this.onValueChanged(); // (re)set validation messages now
+    this.onValueChanged(); // (re)set validation messages now
   }
   onValueChanged(data?: any) {
     if (!this.commentForm) { return; }
@@ -101,6 +103,6 @@ export class DishdetailComponent implements OnInit {
       rating: '5',
       comment: '',
     });
-   // this.commentFormDirective.resetForm();
+    // this.commentFormDirective.resetForm();
   }
 }
