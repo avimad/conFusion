@@ -2,24 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
 import { ViewChild } from '@angular/core';
-import { flyInOut } from '../animations/app.animation';
-
+import { flyInOut, expand } from '../animations/app.animation';
+import { FeedbackService } from '../services/feedback.service';
 @Component({
   selector: 'app-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss'],
-    // tslint:disable-next-line:use-host-property-decorator
-    host: {
-      '[@flyInOut]': 'true',
-      'style': 'display: block;'
-    },
-  animations: [flyInOut()]
+  // tslint:disable-next-line:use-host-property-decorator
+  host: {
+    '[@flyInOut]': 'true',
+    'style': 'display: block;'
+  },
+  animations: [flyInOut(), expand()]
 })
 export class ContactComponent implements OnInit {
   @ViewChild('fform') feedbackFormDirective;
   feedbackForm: FormGroup;
   feedback: Feedback;
   contactType = ContactType;
+  feedbackErrMess: string;
+  feedbackRes: Feedback;
+  loader = false;
+  displyInfo = false;
   formErrors = {
     'firstname': '',
     'lastname': '',
@@ -48,7 +52,7 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private feedbackservice: FeedbackService) {
     this.createForm();
   }
 
@@ -70,18 +74,29 @@ export class ContactComponent implements OnInit {
     this.onValueChanged(); // (re)set validation messages now
   }
   onSubmit() {
+    this.loader = true;
     this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
-    this.feedbackForm.reset({
-      firstname: '',
-      lastname: '',
-      telnum: '',
-      email: '',
-      agree: false,
-      contacttype: 'None',
-      message: ''
-    });
-    this.feedbackFormDirective.resetForm();
+    this.feedbackservice.submitFeedback(this.feedback).subscribe(res => {
+      this.loader = false;
+      this.feedbackRes = res;
+      this.displyInfo = true;
+      setTimeout(() => {
+        this.displyInfo = false;
+        this.feedbackForm.reset({
+          firstname: '',
+          lastname: '',
+          telnum: '',
+          email: '',
+          agree: false,
+          contacttype: 'None',
+          message: ''
+        });
+        this.feedbackFormDirective.resetForm();
+      }, 5000);
+
+
+    }, errmess => this.feedbackErrMess = <any>errmess.message);
+
   }
   onValueChanged(data?: any) {
     if (!this.feedbackForm) { return; }
